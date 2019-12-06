@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import "./App.css";
 import { DofusMapViewer } from "./components/MapViewer";
 import { MapChangeDirections } from "./utils/MapChangeDirections";
@@ -29,36 +29,31 @@ const App: React.FC = () => {
         const res = fileReader.result as string;
         const waypoints: WayPoint[] = JSON.parse(res);
         Promise.all(
-          waypoints.map(e => {
-            return getMapData(e.mapId).then(data => {
-              return {
+          waypoints.map(e => getMapData(e.mapId)
+            .then(data => ({
                 data,
                 path: e.path.split(",").map(e => Number(e)),
                 waypoint: e
-              };
-            });
-          })
+              })
+            ))
         ).then(setData);
       };
       fileReader.readAsText(cometFile);
     }
   }, []);
 
-  useEffect(() => {}, []);
-
   return (
     <div className="App">
       <input onChange={onJson} accept=".json" type="file" />
-      {data.map(e => {
-        return (
+      {data.map(e => (
           <div key={String(e.waypoint.date)}>
             <h2>{` Map : ${e.waypoint.pos} - Direction : ${
               MapChangeDirections[e.waypoint.direction]
             } - MapId : ${e.waypoint.mapId}`}</h2>
-            <DofusMapViewer path={e.path} data={e.data} />
+            <DofusMapViewer scale={0.60} path={e.path} data={e.data} />
           </div>
-        );
-      })}
+        )
+      )}
     </div>
   );
 };

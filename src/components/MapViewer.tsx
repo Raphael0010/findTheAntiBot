@@ -6,6 +6,8 @@ interface Props {
   isObstacle: boolean;
   first: boolean;
   finish: boolean;
+  width: number;
+  height: number;
 }
 export const DofusMapCell: React.FC<Props> = ({
   row,
@@ -13,10 +15,12 @@ export const DofusMapCell: React.FC<Props> = ({
   isObstacle,
   inPath,
   first,
-  finish
+  finish,
+  width,
+  height
 }) => {
-  const x = 22 * (row % 2) + column * 44;
-  const y = row * 11;
+  const x = width / 2 * (row % 2) + column * width;
+  const y = row * height / 2;
   const fill = finish
     ? "rgb(112, 123, 86)"
     : first
@@ -30,7 +34,7 @@ export const DofusMapCell: React.FC<Props> = ({
     : "rgb(207,216,220)";
   return (
     <path
-      d="M 22 0 L 44 11 L 22 22 L 0 11 L 22 0"
+      d={`M ${width / 2} 0 L ${width} ${height / 2} L ${width / 2} ${height} L 0 ${height / 2} L ${width / 2} 0`}
       transform={`translate(${x} ${y})`}
       fill={fill}
       stroke="white"
@@ -38,10 +42,13 @@ export const DofusMapCell: React.FC<Props> = ({
   );
 };
 
-export const DofusMapViewer: React.FC<{ data: any; path: number[] }> = ({
+export const DofusMapViewer: React.FC<{ data: any; path: number[], scale: number }> = ({
   data,
-  path
+  path,
+  scale
 }) => {
+  const width = 43 * scale;
+  const height = 21.5 * scale;
   const cells = data.cells;
   return (
     <div>
@@ -67,10 +74,12 @@ export const DofusMapViewer: React.FC<{ data: any; path: number[] }> = ({
           />
         </svg>
       </div>
-      <svg width="700" height="700" xmlns="http://www.w3.org/2000/svg">
+      <svg width={14 * width + width / 2} height={20 * height + height / 2} xmlns="http://www.w3.org/2000/svg">
         {range(0, 40).map(row =>
           range(0, 14).map(column => (
             <DofusMapCell
+              width={width}
+              height={height}
               first={path[0] === row * 14 + column}
               finish={path[path.length - 1] === row * 14 + column}
               inPath={path.includes(row * 14 + column)}
